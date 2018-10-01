@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ToDoAPI</name>
+    </assembly>
+    <members>
+        <member name="T:ToDoAPI.Controllers.ToDoController">
+            <summary>
+            Doing the things that need to be done
+            </summary>
+        </member>
+        <member name="M:ToDoAPI.Controllers.ToDoController.#ctor(Service.Interface.IToDoService,Microsoft.Extensions.Logging.ILogger{ToDoAPI.Controllers.ToDoController})">
+            <summary>
+            to constructor for injection
+            </summary>
+            <param name="service"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:ToDoAPI.Controllers.ToDoController.Get">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ToDoAPI.Controllers.ToDoController.Get(System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ToDoAPI.Controllers.ToDoController.Create(Model.CreateDTO)">
+            <summary>
+            creates a new list
+            </summary>
+            <remarks>Adds a list to the system</remarks>
+            <param name="todoList">ToDo list to add</param>
+            <response code="201">item created</response>
+            <response code="400">invalid input, object invalid</response>
+            <response code="409">an existing item already exists</response>
+            <response code="500">server error</response>
+            <returns>Response code and dto object</returns>
+        </member>
+        <member name="M:ToDoAPI.Controllers.ToDoController.Put(System.Int32,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="id"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:ToDoAPI.Controllers.ToDoController.Delete(System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="id"></param>
+        </member>
+        <member name="T:ToDoAPI.Program">
+            <summary>
+            main class program web host
+            </summary>
+        </member>
+        <member name="M:ToDoAPI.Program.Main(System.String[])">
+            <summary>
+            main for console
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:ToDoAPI.Program.CreateWebHostBuilder(System.String[])">
+            <summary>
+            middle ware
+            </summary>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ToDoAPI.Startup">
+            <summary>
+            use to be gobal middleware pipeline
+            </summary>
+        </member>
+        <member name="P:ToDoAPI.Startup.Configuration">
+            <summary>
+            configuration
+            </summary>
+        </member>
+        <member name="M:ToDoAPI.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            constructor
+            </summary>
+            <param name="configuration"></param>
+        </member>
+        <member name="M:ToDoAPI.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            This method gets called by the runtime. Use this method to add services to the container.
+            </summary>
+            <param name="services"></param>  
+        </member>
+        <member name="M:ToDoAPI.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+            <summary>
+            This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            </summary>
+            <param name="app"></param>
+            <param name="env"></param> 
+        </member>
+        <member name="M:ToDoAPI.Startup.ConfigureIOC(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            setup IOC
+            </summary>
+            <param name="services"></param>
+        </member>
+    </members>
+</doc>
