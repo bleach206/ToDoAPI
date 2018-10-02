@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 
+using Common.Interface;
 using Model;
 using Model.Interface;
 using Service.Interface;
@@ -18,6 +20,7 @@ namespace ToDoTests
     {
         IToDoService _moqService;
         ILogger<ToDoController> _mockLogger;
+        IETagCache _mockCache;
         ToDoController _toDoController;
         ICreateDTO _mockCreateDTO;
 
@@ -27,12 +30,13 @@ namespace ToDoTests
         {
             _moqService = new Mock<IToDoService>().Object;
             _mockLogger = new Mock<ILogger<ToDoController>>().Object;
+            _mockCache = new Mock<IETagCache>().Object;
         }
 
         [SetUp]
         public void SetUp()
         {
-            _toDoController = new ToDoController(_moqService, _mockLogger);
+            _toDoController = new ToDoController(_moqService, _mockLogger, _mockCache);
             var task = new Mock<CreateTaskDTO>().Object;
             task.Name = "Guard and kill everyone else";
             var list = new List<CreateTaskDTO>();
@@ -101,6 +105,22 @@ namespace ToDoTests
             //Arrange           
             _toDoController.ModelState.AddModelError("Name", "StringLength");
             _mockCreateDTO.Name = @"In the story, Daenerys is a young woman in her early teens living in Essos across the Narrow Sea. Knowing no other life than one of exile, she remains dependent on her abusive older brother, Viserys. The timid and meek girl finds herself married to Dothraki horselord Khal Drogo, in exchange for an army for Viserys which is to return to Westeros and recapture the Iron Throne. Despite this, her brother loses the ability to control her as Daenerys finds herself adapting to life with the khalasar and emerges as a strong, confident and courageous woman. She becomes the heir of the Targaryen dynasty after her brother's death and plans to reclaim the Iron Throne herself, seeing it as her birthright. A pregnant Daenerys loses her husband and child, but soon helps hatch three dragons from their eggs, which regard her as their mother, providing her with a tactical advantage and prestige";
+            //Act
+            var actualResult = _toDoController.Create(_mockCreateDTO as CreateDTO);
+            //Assert
+            Assert.IsInstanceOf<BadRequestResult>(actualResult.Result);
+
+        }
+
+        /// <summary>
+        /// To Do list description can't exceed 255 in length
+        /// </summary>
+        [Test]
+        public void CreateListFourHundredWhenToDoListDescriptionExceedMax()
+        {
+            //Arrange           
+            _toDoController.ModelState.AddModelError("Description", "StringLength");
+            _mockCreateDTO.Description = @"In the story, Daenerys is a young woman in her early teens living in Essos across the Narrow Sea. Knowing no other life than one of exile, she remains dependent on her abusive older brother, Viserys. The timid and meek girl finds herself married to Dothraki horselord Khal Drogo, in exchange for an army for Viserys which is to return to Westeros and recapture the Iron Throne. Despite this, her brother loses the ability to control her as Daenerys finds herself adapting to life with the khalasar and emerges as a strong, confident and courageous woman. She becomes the heir of the Targaryen dynasty after her brother's death and plans to reclaim the Iron Throne herself, seeing it as her birthright. A pregnant Daenerys loses her husband and child, but soon helps hatch three dragons from their eggs, which regard her as their mother, providing her with a tactical advantage and prestige";
             //Act
             var actualResult = _toDoController.Create(_mockCreateDTO as CreateDTO);
             //Assert

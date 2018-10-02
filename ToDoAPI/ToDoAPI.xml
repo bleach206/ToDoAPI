@@ -9,18 +9,26 @@
             Doing the things that need to be done
             </summary>
         </member>
-        <member name="M:ToDoAPI.Controllers.ToDoController.#ctor(Service.Interface.IToDoService,Microsoft.Extensions.Logging.ILogger{ToDoAPI.Controllers.ToDoController})">
+        <member name="M:ToDoAPI.Controllers.ToDoController.#ctor(Service.Interface.IToDoService,Microsoft.Extensions.Logging.ILogger{ToDoAPI.Controllers.ToDoController},Common.Interface.IETagCache)">
             <summary>
             to constructor for injection
             </summary>
             <param name="service"></param>
             <param name="logger"></param>
+            <param name="cache"></param>
         </member>
-        <member name="M:ToDoAPI.Controllers.ToDoController.Get">
+        <member name="M:ToDoAPI.Controllers.ToDoController.Get(System.String,System.Int32,System.Int32)">
             <summary>
-            
+            returns all of the available lists
             </summary>
-            <returns></returns>
+            <remarks>Searches the todo lists that are available</remarks>      
+            <param name="searchString">pass an optional search string for looking up a list</param>
+            <param name="skip">number of records to skip for pagination</param>
+            <param name="limit">maximum number of records to return</param>
+            <response code="200">search results matching criteria</response>
+            <response code="400">bad input parameter</response>
+            <response code="500">server error</response>
+            <returns>Response code and dto object</returns>
         </member>
         <member name="M:ToDoAPI.Controllers.ToDoController.Get(System.Int32)">
             <summary>

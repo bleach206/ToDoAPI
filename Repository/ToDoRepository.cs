@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Common;
+using Model;
 using Model.Interface;
 using Repository.Interface;
 
@@ -45,6 +48,51 @@ namespace Repository
                 throw;
             }
         }
-        #endregion        
+
+        public async Task<IEnumerable<IToDoDTO>> GetAllList(string searchString = "", int skip = 1, int limit = 50)
+        {
+            try
+            {
+                using (var cnn = new SqlConnection(_connection))
+                {
+                    var toDoDictionary = new Dictionary<int, ToDoDTO>();
+                    var queryParameter = new DynamicParameters();
+                    queryParameter.Add("@SearchTerm", value: searchString, size: 255);
+                    queryParameter.Add("@PageNumber", dbType: DbType.Int32, value: skip);
+                    queryParameter.Add("@PageSize", dbType: DbType.Int32, value: limit);
+
+                    var data = await cnn.QueryAsync<ToDoDTO, TaskDTO, ToDoDTO>("[dbo].[usp_GetToDoBySearchTernAndPageNumberAndPageSize]", (todo, task) =>
+                    {
+                        ToDoDTO toDoDTO;
+                        if (!toDoDictionary.TryGetValue(todo.Id, out toDoDTO))
+                        {
+                            toDoDTO = todo;
+                            toDoDictionary.Add(todo.Id, toDoDTO);
+                        }
+
+                        if (toDoDTO.Tasks == null)
+                        {
+                            toDoDTO.Tasks = new List<TaskDTO>();
+                        }
+                        toDoDTO.Tasks.Add(task);
+
+                        return toDoDTO;
+                    },
+                    splitOn: "ID",
+                    param: queryParameter,
+                    commandType: CommandType.StoredProcedure);
+                    return data.Distinct().ToList();
+                }
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }

@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
+using Common;
+using Common.Interface;
 using Repository;
 using Repository.Interface;
 using Service;
 using Service.Interface;
 
 using Swashbuckle.AspNetCore.Swagger;
-using System.IO;
 
 namespace ToDoAPI
 {
@@ -41,6 +44,11 @@ namespace ToDoAPI
         /// <param name="services"></param>  
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedRedisCache(options =>
+            {
+                options.Configuration = "localhost:6379"; //location of redis server
+            });
+                      
             ConfigureIOC(services);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
@@ -85,8 +93,10 @@ namespace ToDoAPI
         /// <param name="services"></param>
         public void ConfigureIOC(IServiceCollection services)
         {
-            services.AddScoped<IToDoService, ToDoService>();
-            services.AddTransient<IToDoRepository>(repository => new ToDoRepository(Configuration.GetValue<string>("AppSettings:SqlConnection")));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IETagCache, ETagCache>();
+            services.AddScoped<IToDoService, ToDoService>();           
+            services.AddTransient<IToDoRepository>(repository => new ToDoRepository(Configuration.GetValue<string>("AppSettings:SqlConnection")));           
         }
     }
 }
