@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Common.Interface;
@@ -48,7 +49,7 @@ namespace ToDoAPI.Controllers
         /// <response code="500">server error</response>
         /// <returns>Response code and dto object</returns>
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(ToDoDTO))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ToDoDTO>))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> Get([FromQuery]string searchString, [FromQuery]int skip, [FromQuery]int limit)
         {
@@ -56,26 +57,48 @@ namespace ToDoAPI.Controllers
             {
                 var skipParam = skip.Equals(0) ? 1 : skip;
                 var limitParam = limit.Equals(0) ? 50 : limit;
-                var toDoList = await _service.GetAllList(searchString, skipParam, limitParam);
-                return Ok(toDoList);
+                var toDoList = await _service.GetToDoByPaging(searchString, skipParam, limitParam);
+                return Ok(toDoList);                
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting ToDo list");
                 return StatusCode(StatusCodes.Status500InternalServerError);
-            }                
+            }
         }
 
         /// <summary>
-        /// 
+        /// return the specified todo list
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        // GET: api/ToDo/5
+        /// <remarks>Parameters</remarks>   
+        /// <param name="id">The unique identifier of the list</param>
+        /// <response code="200">successful operation</response>
+        /// <response code="400">Invalid id supplied</response>
+        /// <response code="404">List not found</response>
+        /// <response code="500">server error</response>
+        /// <returns>Response code and dto object</returns>
+        [ProducesResponseType(200, Type = typeof(ToDoDTO))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            try
+            {
+
+                var toDo = await _service.GetToDoById(id);
+
+                if (toDo == null)
+                    return NotFound();
+
+                return Ok(toDo);        
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting todo by id");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
 

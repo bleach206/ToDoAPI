@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using Model.Interface;
@@ -24,13 +23,6 @@ namespace Model
         /// Optional description of to do list
         /// </summary>
         [StringLength(255)]
-        public string Description { get; set; }
-
-        /// <summary>
-        /// To do list tasks
-        /// </summary>
-        [Required]
-        [DisplayFormat(ConvertEmptyStringToNull = false)]
-        public IEnumerable<CreateTaskDTO> Tasks { get; set; }
+        public string Description { get; set; } 
     }
 }

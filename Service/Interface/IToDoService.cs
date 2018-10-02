@@ -8,6 +8,7 @@ namespace Service.Interface
     public interface IToDoService
     {
         Task<int> CreateToDo(ICreateDTO toDo);
-        Task<IEnumerable<IToDoDTO>> GetAllList(string searchString = "", int skip = 1, int limit = 50);
+        Task<IToDoDTO> GetToDoById(int id);
+        Task<IEnumerable<IToDoDTO>> GetToDoByPaging(string searchString = "", int skip = 1, int limit = 50);
     }
 }

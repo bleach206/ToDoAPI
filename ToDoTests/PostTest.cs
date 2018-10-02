@@ -47,7 +47,7 @@ namespace ToDoTests
             _mockCreateDTO.Name = "Protect Daenerys Stormborn";
             _mockCreateDTO.Description = "Protecter of Dragons";
 
-            _mockCreateDTO.Tasks = list;
+            //_mockCreateDTO.Tasks = list;
         }
 
         #region CreateDTO Post Test
@@ -135,7 +135,7 @@ namespace ToDoTests
         public void CreateListFourHundredWhenToDoListTaskCanNotBeNull()
         {
             //Arrange         
-            _mockCreateDTO.Tasks = null;
+            //_mockCreateDTO.Tasks = null;
             _toDoController.ModelState.AddModelError("Tasks", "ConvertEmptyStringToNull");
             //Act
             var actualResult = _toDoController.Create(_mockCreateDTO as CreateDTO);
@@ -153,7 +153,7 @@ namespace ToDoTests
         public void CreateListFourHundredWhenToDoTaskNameIsNull()
         {
             //Arrange          
-            _mockCreateDTO.Tasks.FirstOrDefault().Name = null;
+            //_mockCreateDTO.Tasks.FirstOrDefault().Name = null;
             _toDoController.ModelState.AddModelError("Name", "ConvertEmptyStringToNull");
             //Act
             var actualResult = _toDoController.Create(_mockCreateDTO as CreateDTO);

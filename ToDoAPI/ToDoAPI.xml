@@ -32,10 +32,15 @@
         </member>
         <member name="M:ToDoAPI.Controllers.ToDoController.Get(System.Int32)">
             <summary>
-            
+            return the specified todo list
             </summary>
-            <param name="id"></param>
-            <returns></returns>
+            <remarks>Parameters</remarks>   
+            <param name="id">The unique identifier of the list</param>
+            <response code="200">successful operation</response>
+            <response code="400">Invalid id supplied</response>
+            <response code="404">List not found</response>
+            <response code="500">server error</response>
+            <returns>Response code and dto object</returns>
         </member>
         <member name="M:ToDoAPI.Controllers.ToDoController.Create(Model.CreateDTO)">
             <summary>

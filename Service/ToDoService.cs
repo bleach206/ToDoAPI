@@ -21,15 +21,9 @@ namespace Service
 
         #region Method
 
-        public async Task<int> CreateToDo(ICreateDTO toDo)
-        {
-            return await _repository.CreateToDo(toDo);
-        }
-
-        public async Task<IEnumerable<IToDoDTO>> GetAllList(string searchString = "", int skip = 1, int limit = 50)
-        {
-            return await _repository.GetAllList(searchString, skip, limit);
-        }
+        public async Task<int> CreateToDo(ICreateDTO toDo) => await _repository.CreateToDo(toDo);
+        public async Task<IToDoDTO> GetToDoById(int id) => await _repository.GetToDoById(id);
+        public async Task<IEnumerable<IToDoDTO>> GetToDoByPaging(string searchString = "", int skip = 1, int limit = 50) => await _repository.GetToDoByPaging(searchString, skip, limit);
         #endregion
     }
 }

@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Common;
 using Model;
 using Model.Interface;
 using Repository.Interface;
@@ -32,11 +31,36 @@ namespace Repository
         {
             try
             {
-                var sql = "[dbo].[usp_InsertToDoList]";
-                var tvp = new TabledValuedParameter(toDo.Tasks.CopyToDataTable(), "TaskTableType");
+                var sql = "[dbo].[usp_InsertToDo]";       
                 using (var cnn = new SqlConnection(_connection))
                 {
-                    return await cnn.ExecuteScalarAsync<int>(sql, new { toDo.Name, toDo.Description, TVP = tvp }, commandType: CommandType.StoredProcedure);
+                    return await cnn.ExecuteScalarAsync<int>(sql, new { toDo.Name, toDo.Description }, commandType: CommandType.StoredProcedure);
+                }
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }        
+
+        public async Task<IToDoDTO> GetToDoById(int id)
+        {
+            try
+            {
+                using (var cnn = new SqlConnection(_connection))
+                {
+                    var toDoDictionary = new Dictionary<int, ToDoDTO>();
+                    var queryParameter = new DynamicParameters();                   
+                    queryParameter.Add("@Id", dbType: DbType.Int32, value: id);
+
+                    var data = await cnn.QueryAsync<ToDoDTO>("[dbo].[usp_GetToDoById]", 
+                    param: queryParameter,
+                    commandType: CommandType.StoredProcedure);
+                    return data.FirstOrDefault();
                 }
             }
             catch (SqlException)
@@ -49,7 +73,7 @@ namespace Repository
             }
         }
 
-        public async Task<IEnumerable<IToDoDTO>> GetAllList(string searchString = "", int skip = 1, int limit = 50)
+        public async Task<IEnumerable<IToDoDTO>> GetToDoByPaging(string searchString = "", int skip = 1, int limit = 50)
         {
             try
             {
@@ -61,27 +85,10 @@ namespace Repository
                     queryParameter.Add("@PageNumber", dbType: DbType.Int32, value: skip);
                     queryParameter.Add("@PageSize", dbType: DbType.Int32, value: limit);
 
-                    var data = await cnn.QueryAsync<ToDoDTO, TaskDTO, ToDoDTO>("[dbo].[usp_GetToDoBySearchTernAndPageNumberAndPageSize]", (todo, task) =>
-                    {
-                        ToDoDTO toDoDTO;
-                        if (!toDoDictionary.TryGetValue(todo.Id, out toDoDTO))
-                        {
-                            toDoDTO = todo;
-                            toDoDictionary.Add(todo.Id, toDoDTO);
-                        }
-
-                        if (toDoDTO.Tasks == null)
-                        {
-                            toDoDTO.Tasks = new List<TaskDTO>();
-                        }
-                        toDoDTO.Tasks.Add(task);
-
-                        return toDoDTO;
-                    },
-                    splitOn: "ID",
+                    var data = await cnn.QueryAsync<ToDoDTO>("[dbo].[usp_GetToDoBySearchTermAndPageNumberAndPageSize]",            
                     param: queryParameter,
                     commandType: CommandType.StoredProcedure);
-                    return data.Distinct().ToList();
+                    return data;
                 }
             }
             catch (SqlException)
@@ -92,6 +99,66 @@ namespace Repository
             {
                 throw;
             }
+        }
+
+        public async Task<bool> UpdateToDo(IToDoDTO toDo)
+        {
+            try
+            {
+                using (var cnn = new SqlConnection(_connection))
+                {
+                    var toDoDictionary = new Dictionary<int, ToDoDTO>();
+                    var queryParameter = new DynamicParameters();
+                    queryParameter.Add("@Id", dbType: DbType.Int32, value: toDo.Id);
+                    queryParameter.Add("@Name", value: toDo.Name, size: 255);
+                    queryParameter.Add("@Description", value: toDo.Description, size: 255);
+                    var result = await cnn.ExecuteAsync("[dbo].[usp_UpdateToDo]", param: queryParameter, commandType: CommandType.StoredProcedure);
+                    return Convert.ToBoolean(result.ToString());
+                }               
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateToDoDescription(int id, string description)
+        {
+            try
+            {
+
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateToDoName(int id, string name)
+        {
+            try
+            {
+
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            throw new NotImplementedException();
         }
         #endregion
     }
