@@ -54,7 +54,7 @@ namespace ToDoAPI
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "To Do API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "To Do API", Version = "v1" });                
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "ToDoAPI.xml");
                 c.IncludeXmlComments(filePath);
             });
@@ -80,7 +80,7 @@ namespace ToDoAPI
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "To Do API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "To Do API V1");       
             });
 
             app.UseHttpsRedirection();

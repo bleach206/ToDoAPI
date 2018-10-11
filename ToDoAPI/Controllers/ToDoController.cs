@@ -40,25 +40,32 @@ namespace ToDoAPI.Controllers
         /// <summary>
         /// returns all of the available lists
         /// </summary>
-        /// <remarks>Searches the todo lists that are available</remarks>      
+        /// <remarks>Gets a list of user to do. <br />  id: user id. <br />  skip: number of records to skip for pagination. (default is 1) <br/>  limit: the maximum number of records to return (Max is 50 default to 50) </remarks>
+        /// <param name="getListsDTO">query paramter DTO</param>
         /// <param name="searchString">pass an optional search string for looking up a list</param>
-        /// <param name="skip">number of records to skip for pagination</param>
-        /// <param name="limit">maximum number of records to return</param>
-        /// <response code="200">search results matching criteria</response>
-        /// <response code="400">bad input parameter</response>
+        /// <response code="200">successful operation</response>
+        /// <response code="400">Invalid input</response>
+        /// <response code="404">List not found</response>
         /// <response code="500">server error</response>
         /// <returns>Response code and dto object</returns>
-        [HttpGet]
+        [HttpGet]       
         [ProducesResponseType(200, Type = typeof(IEnumerable<ToDoDTO>))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Get([FromQuery]string searchString, [FromQuery]int skip, [FromQuery]int limit)
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> Get([FromQuery] GetListsDTO getListsDTO, [FromQuery]string searchString)
         {
             try
             {
-                var skipParam = skip.Equals(0) ? 1 : skip;
-                var limitParam = limit.Equals(0) ? 50 : limit;
-                var toDoList = await _service.GetToDoByPaging(searchString, skipParam, limitParam);
-                return Ok(toDoList);                
+                if (!ModelState.IsValid || getListsDTO.Id.Equals(0))
+                    return BadRequest();
+
+                var toDoList = await _service.GetToDoByPaging(getListsDTO.Id, getListsDTO.Skip, getListsDTO.Limit, searchString);
+
+                if (toDoList == null)
+                    return NotFound();
+
+                return Ok(toDoList);            
             }
             catch (Exception ex)
             {
@@ -86,13 +93,12 @@ namespace ToDoAPI.Controllers
         {
             try
             {
-
                 var toDo = await _service.GetToDoById(id);
 
                 if (toDo == null)
                     return NotFound();
 
-                return Ok(toDo);        
+                return Ok(toDo);
             }
             catch (Exception ex)
             {
@@ -106,7 +112,7 @@ namespace ToDoAPI.Controllers
         /// creates a new list
         /// </summary>
         /// <remarks>Adds a list to the system</remarks>
-        /// <param name="todoList">ToDo list to add</param>
+        /// <param name="toDo">ToDo list to add</param>
         /// <response code="201">item created</response>
         /// <response code="400">invalid input, object invalid</response>
         /// <response code="409">an existing item already exists</response>
@@ -117,19 +123,19 @@ namespace ToDoAPI.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(409)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Create([FromBody] CreateDTO todoList)
+        public async Task<IActionResult> Create([FromBody] CreateDTO toDo)
         {
             try
             {
-                if (todoList == null || !ModelState.IsValid)                
-                    return BadRequest();                
+                if (toDo == null || !ModelState.IsValid)
+                    return BadRequest();
 
-                var Id = await _service.CreateToDo(todoList);
+                var Id = await _service.CreateToDo(toDo);
 
                 if (Id.Equals(0))
                     return StatusCode(StatusCodes.Status409Conflict);
 
-                return CreatedAtRoute("Get", new { id = Id }, todoList);
+                return CreatedAtRoute("Get", new { id = Id }, toDo);
             }
             catch (Exception ex)
             {
@@ -139,24 +145,110 @@ namespace ToDoAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Update to do Name and Description
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="value"></param>
-        // PUT: api/ToDo/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        /// <remarks>update to do</remarks>
+        /// <param name="toDo">to do to update</param>
+        /// <response code="201">to do updated</response>
+        /// <response code="400">invalid input, object invalid</response>
+        /// <response code="404">Resource not found</response>
+        /// <response code="500">server error</response>
+        /// <returns>Response code and dto object</returns>       
+        [HttpPut]
+        [ProducesResponseType(201, Type = typeof(ToDoDTO))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> Put([FromBody]ToDoDTO toDo)
         {
+            try
+            {
+                if (!ModelState.IsValid || toDo == null)
+                    return BadRequest();
+
+                var update = await _service.UpdateToDo(toDo);
+
+                if (!update)
+                    return NotFound();
+
+                return CreatedAtRoute("Get", new { id = toDo.Id }, toDo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Creating ToDo");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+        /// <summary>
+        /// Update to do Name
+        /// </summary>
+        /// <remarks>update to do name</remarks>
+        /// <param name="id">To do id</param>
+        /// <param name="name">To do name</param>
+        /// <response code="201">to do updated</response>
+        /// <response code="400">invalid input, object invalid</response>
+        /// <response code="404">Resource not found</response>
+        /// <response code="500">server error</response>
+        /// <returns>no content</returns>
+        [HttpPut("{id}/update/name")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]       
+        public async Task<IActionResult> PutUpdateName(int id, [FromBody]string name)
+        {
+            try
+            {
+                if (!ModelState.IsValid || string.IsNullOrWhiteSpace(name))
+                    return BadRequest();
+
+                var update = await _service.UpdateToDoName(id, name);
+
+                return CreatedAtRoute("Get", new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Update ToDo Name");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
         /// <summary>
-        /// 
+        /// Update to do description
         /// </summary>
-        /// <param name="id"></param>
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        /// <remarks>update to do description</remarks>
+        /// <param name="id">To do id</param>
+        /// <param name="description">To do name</param>
+        /// <response code="201">to do updated</response>
+        /// <response code="400">invalid input, object invalid</response>
+        /// <response code="404">Resource not found</response>
+        /// <response code="500">server error</response>
+        /// <returns>no content</returns>
+        [HttpPut("{id}/update/description")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]        
+        public async Task<IActionResult> PutUpdateDescription(int id, [FromBody]string description)
         {
+            try
+            {
+                if (!ModelState.IsValid || string.IsNullOrWhiteSpace(description))
+                    return BadRequest();
+
+                var update = await _service.UpdateToDoDescription(id, description);
+
+                return CreatedAtRoute("Get", new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Update ToDo Name");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
+
+
     }
 }

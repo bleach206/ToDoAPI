@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Linq;
 
 using Moq;
 using NUnit.Framework;
@@ -48,7 +46,7 @@ namespace ToDoTests
             _mockCreateDTO.Description = "Protecter of Dragons";
 
             //_mockCreateDTO.Tasks = list;
-        }
+        }       
 
         #region CreateDTO Post Test
 

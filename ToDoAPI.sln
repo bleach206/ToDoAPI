@@ -5,15 +5,15 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoAPI", "ToDoAPI\ToDoAPI.csproj", "{54007015-BABF-4FAF-8364-C583377E1CE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{3FDF8151-1370-40F6-8259-9E858AEDB521}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{3FDF8151-1370-40F6-8259-9E858AEDB521}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{0B8FC9F9-14C4-4F13-85DB-A1B8CB2BCE43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{0B8FC9F9-14C4-4F13-85DB-A1B8CB2BCE43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{B310E301-D496-47A4-A467-252CADE7C439}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{B310E301-D496-47A4-A467-252CADE7C439}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{60BFC385-87B7-4A3E-A28C-6548A48CD972}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.csproj", "{60BFC385-87B7-4A3E-A28C-6548A48CD972}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoTests", "ToDoTests\ToDoTests.csproj", "{5712CA11-162E-49F6-A6E3-B420BCD7D68E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoTests", "ToDoTests\ToDoTests.csproj", "{5712CA11-162E-49F6-A6E3-B420BCD7D68E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
