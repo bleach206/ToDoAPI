@@ -3,6 +3,6 @@
     public interface IETagCache
     {
         T GetCachedObject<T>(string cacheKeyName);
-        bool SetCachedObject(string cacheKeyName, dynamic objectToCache);
+        bool SetCachedObject<T>(string cacheKeyName, T objectToCache, byte[] rowVersion, int minutes);
     }
 }

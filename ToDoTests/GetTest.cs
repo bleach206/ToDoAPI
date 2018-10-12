@@ -13,6 +13,8 @@ using Model.Interface;
 using Service.Interface;
 using ToDoAPI.Controllers;
 using ToDoTests.Interface;
+using Microsoft.AspNetCore.Http;
+using Common;
 
 namespace ToDoTests
 {
@@ -21,8 +23,7 @@ namespace ToDoTests
     {
         Mock<IToDoService> _mockService;
         ILogger<ToDoController> _mockLogger;
-        IETagCache _mockCache;
-        ToDoController _toDoController;
+        IETagCache _mockCache;      
         GetListsDTO getListDTO;
         IModelValidation _mockModelValidation;
         ToDoDTO _toDoDTO;
@@ -36,15 +37,14 @@ namespace ToDoTests
         public void OneSetUp()
         {            
             _mockLogger = new Mock<ILogger<ToDoController>>().Object;
-            _mockCache = new Mock<IETagCache>().Object;
-            _toDoController = new ToDoController(new Mock<IToDoService>().Object, _mockLogger, _mockCache);
+            _mockCache = new Mock<IETagCache>().Object;         
             _mockModelValidation = new Mock<ModelValidation>().Object;
         }
 
         [SetUp]
         public void SetUp()
         {
-            _mockService = new Mock<IToDoService>();
+            _mockService = new Mock<IToDoService>();    
             _toDoDTO = new ToDoDTO
             {
                 Id = toDoId,
@@ -60,26 +60,66 @@ namespace ToDoTests
         }
 
         /// <summary>
-        /// Get User lists return 200
+        /// Return 304 response because we have a cache version
         /// </summary>
         /// <returns></returns>
         [Test]
-        public async Task GetUserListsTwoHundredResponse()
+        public async Task GetUserToDoListCacheThreeHundredFourResponse()
         {
-            //Arrange                 
+            //Arrange
+            var expected = StatusCodes.Status304NotModified;
             var list = new List<ToDoDTO>();
             list.Add(new ToDoDTO
             {
                 Description = "Protect",
                 Name = "Protect Queen of the south",
-                Id = 12154                
-            });            
+                Id = 12154
+            });
+            var mockCache = new Mock<IETagCache>();            
+            mockCache.Setup(
+               cache => cache.GetCachedObject<IEnumerable<ToDoDTO>>($"user-{userId}")
+               ).Returns(list);
+            //Act
+            var controller = new ToDoController(new Mock<IToDoService>().Object, _mockLogger, mockCache.Object);
+            var result = await controller.Get(getListDTO, searchString) as StatusCodeResult;
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<StatusCodeResult>(result);
+            Assert.AreEqual(expected, result.StatusCode);
+        }
 
-            _mockService.Setup(
+        /// <summary>
+        /// Get User lists return 200 response after cache is set
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task GetUserListsTwoHundredResponseCache()
+        {
+            //Arrange                 
+            var cacheName = $"user-{userId}";
+            var list = new List<ToDoDTO>();
+            var mockRow = new byte[] { 0, 4 };
+            list.Add(new ToDoDTO
+            {
+                Description = "Protect",
+                Name = "Protect Queen of the south",
+                Id = 12154,
+                RowVersion = mockRow
+            });       
+            var mockCache = new Mock<IETagCache>();
+            mockCache.Setup(
+               cache => cache.SetCachedObject(It.IsAny<string>(), It.IsAny<IEnumerable<ToDoDTO>>(), It.IsAny<byte[]>(), It.IsAny<int>())
+               ).Returns(true);
+            mockCache.Setup(
+               cache => cache.GetCachedObject<IEnumerable<ToDoDTO>>(cacheName)
+               ).Returns((IEnumerable<ToDoDTO>)null);
+        
+            var mockService = new Mock<IToDoService>();
+            mockService.Setup(
                 service => service.GetToDoByPaging(userId, skip, limit, searchString)
                 ).ReturnsAsync(list);
             //Act
-            var controller = new ToDoController(_mockService.Object, _mockLogger, _mockCache);
+            var controller = new ToDoController(mockService.Object, _mockLogger, mockCache.Object);
             var result = await controller.Get(getListDTO, searchString);
             //Assert
             Assert.IsNotNull(result);

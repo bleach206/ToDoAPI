@@ -73,7 +73,7 @@ namespace Repository
             }
         }
 
-        public async Task<IEnumerable<IToDoDTO>> GetToDoByPaging(int userId, int skip = 1, int limit = 50, string searchString = "")
+        public async Task<IEnumerable<ToDoDTO>> GetToDoByPaging(int userId, int skip = 1, int limit = 50, string searchString = "")
         {
             try
             {

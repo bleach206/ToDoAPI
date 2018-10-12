@@ -1,4 +1,7 @@
-﻿using Model.Interface;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+
+using Model.Interface;
 
 namespace Model
 {
@@ -6,6 +9,9 @@ namespace Model
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }       
+        public string Description { get; set; }
+        [IgnoreDataMember]
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }

@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using Common.Interface;
 using Model;
 using Service.Interface;
+using Model.Interface;
+using System.Linq;
+using System.Net;
 
 namespace ToDoAPI.Controllers
 {
@@ -35,8 +38,6 @@ namespace ToDoAPI.Controllers
         public ToDoController(IToDoService service, ILogger<ToDoController> logger, IETagCache cache) => (_service, _logger, _cache) = (service, logger, cache);
         #endregion
 
-
-
         /// <summary>
         /// returns all of the available lists
         /// </summary>
@@ -48,7 +49,7 @@ namespace ToDoAPI.Controllers
         /// <response code="404">List not found</response>
         /// <response code="500">server error</response>
         /// <returns>Response code and dto object</returns>
-        [HttpGet]       
+        [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ToDoDTO>))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -60,12 +61,25 @@ namespace ToDoAPI.Controllers
                 if (!ModelState.IsValid || getListsDTO.Id.Equals(0))
                     return BadRequest();
 
-                var toDoList = await _service.GetToDoByPaging(getListsDTO.Id, getListsDTO.Skip, getListsDTO.Limit, searchString);
+                var list = _cache.GetCachedObject<IEnumerable<ToDoDTO>>($"user-{getListsDTO.Id}");
 
-                if (toDoList == null)
+                if (list == null)
+                    list = await _service.GetToDoByPaging(getListsDTO.Id, getListsDTO.Skip, getListsDTO.Limit, searchString);
+
+                if (!list.Any())
                     return NotFound();
 
-                return Ok(toDoList);            
+                var rowVersion = list.FirstOrDefault().RowVersion;
+                var isChanged = _cache.SetCachedObject($"user-{getListsDTO.Id}", list, new byte[] {0,4 }, 3);
+                if (isChanged)
+                {
+                    return Ok(list);
+                }
+                else
+                {                    
+                    return StatusCode(StatusCodes.Status304NotModified);
+                }
+             
             }
             catch (Exception ex)
             {
@@ -196,7 +210,7 @@ namespace ToDoAPI.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(500)]       
+        [ProducesResponseType(500)]
         public async Task<IActionResult> PutUpdateName(int id, [FromBody]string name)
         {
             try
@@ -230,7 +244,7 @@ namespace ToDoAPI.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(500)]        
+        [ProducesResponseType(500)]
         public async Task<IActionResult> PutUpdateDescription(int id, [FromBody]string description)
         {
             try

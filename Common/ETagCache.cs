@@ -35,41 +35,32 @@ namespace Common
                  
                 if (!string.IsNullOrWhiteSpace(cachedObjectJson))
                 {
-                    T cachedObject = JsonConvert.DeserializeObject<T>(cachedObjectJson);
+                    var cachedObject = JsonConvert.DeserializeObject<T>(cachedObjectJson);
                     return cachedObject;
                 }
             }
 
             return default(T);
-        }
+        }                
 
-        private string GetRequestedETag() => _httpContext.Request.Headers.ContainsKey("If-None-Match") ? _httpContext.Request.Headers["If-None-Match"].FirstOrDefault() : string.Empty;         
-
-        public bool SetCachedObject(string cacheKeyName, dynamic objectToCache)
+        public bool SetCachedObject<T>(string cacheKeyName, T objectToCache, byte[] rowVersion, int minutes = 3) 
         {
-            if (!IsCacheable(objectToCache))            
-                return true;            
-
             var requestETag = GetRequestedETag();
-            var responseETag = Convert.ToBase64String(objectToCache.RowVersion);
+            var responseETag = Convert.ToBase64String(rowVersion);
             
             if (objectToCache != null && responseETag != null)
             {
                 var cacheKey = $"{cacheKeyName}-{responseETag}";
-                string serializedObjectToCache = JsonConvert.SerializeObject(objectToCache);               
-                _cache.SetStringAsync(cacheKey, serializedObjectToCache, new DistributedCacheEntryOptions() { AbsoluteExpiration = DateTime.Now.AddMinutes(30) });
+                string serializedObjectToCache = JsonConvert.SerializeObject(objectToCache);
+                _cache.SetStringAsync(cacheKey, serializedObjectToCache, new DistributedCacheEntryOptions() { AbsoluteExpiration = DateTime.Now.AddMinutes(minutes) });
             }
             
             _httpContext.Response.Headers.Add("ETag", responseETag);
-           
-            return !(_httpContext.Request.Headers.ContainsKey("If-None-Match") && responseETag == requestETag);
-        }
 
-        private bool IsCacheable(dynamic objectToCache)
-        {
-            var type = objectToCache.GetType();
-            return type.GetProperty("RowVersion") != null;
-        }
+            return !(_httpContext.Request.Headers.ContainsKey("If-None-Match") && responseETag == requestETag);
+        }     
+        
+        private string GetRequestedETag() => _httpContext.Request.Headers.ContainsKey("If-None-Match") ? _httpContext.Request.Headers["If-None-Match"].FirstOrDefault() : string.Empty;
         #endregion
     }
 }
