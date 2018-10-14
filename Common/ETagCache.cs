@@ -45,19 +45,25 @@ namespace Common
 
         public bool SetCachedObject<T>(string cacheKeyName, T objectToCache, byte[] rowVersion, int minutes = 3) 
         {
-            var requestETag = GetRequestedETag();
-            var responseETag = Convert.ToBase64String(rowVersion);
-            
-            if (objectToCache != null && responseETag != null)
+            try
             {
-                var cacheKey = $"{cacheKeyName}-{responseETag}";
-                string serializedObjectToCache = JsonConvert.SerializeObject(objectToCache);
-                _cache.SetStringAsync(cacheKey, serializedObjectToCache, new DistributedCacheEntryOptions() { AbsoluteExpiration = DateTime.Now.AddMinutes(minutes) });
-            }
-            
-            _httpContext.Response.Headers.Add("ETag", responseETag);
+                var requestETag = GetRequestedETag();
+                var responseETag = Convert.ToBase64String(rowVersion);
 
-            return !(_httpContext.Request.Headers.ContainsKey("If-None-Match") && responseETag == requestETag);
+                if (objectToCache != null && responseETag != null)
+                {
+                    var cacheKey = $"{cacheKeyName}-{responseETag}";
+                    string serializedObjectToCache = JsonConvert.SerializeObject(objectToCache);
+                    _cache.SetStringAsync(cacheKey, serializedObjectToCache, new DistributedCacheEntryOptions() { AbsoluteExpiration = DateTime.Now.AddMinutes(minutes) });
+                }
+
+                _httpContext.Response.Headers.Add("ETag", responseETag);
+                return !(_httpContext.Request.Headers.ContainsKey("If-None-Match") && responseETag == requestETag);
+            }
+            catch (ArgumentNullException)
+            {
+                throw;
+            }          
         }     
         
         private string GetRequestedETag() => _httpContext.Request.Headers.ContainsKey("If-None-Match") ? _httpContext.Request.Headers["If-None-Match"].FirstOrDefault() : string.Empty;

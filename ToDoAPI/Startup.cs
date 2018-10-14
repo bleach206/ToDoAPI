@@ -6,14 +6,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 
+using Swashbuckle.AspNetCore.Swagger;
+
 using Common;
 using Common.Interface;
 using Repository;
 using Repository.Interface;
 using Service;
 using Service.Interface;
-
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace ToDoAPI
 {

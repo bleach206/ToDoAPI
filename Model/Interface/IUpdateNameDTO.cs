@@ -1,8 +1,8 @@
 ﻿namespace Model.Interface
 {
-    public interface ICreateTaskDTO
+    public interface IUpdateNameDTO
     {
+        int UserId { get; set; }
         string Name { get; set; }
-        bool IsCompleted { get; set; }
     }
 }
