@@ -100,8 +100,7 @@ namespace Repository
             try
             {
                 using (var cnn = new SqlConnection(_connection))
-                {
-                    var toDoDictionary = new Dictionary<int, ToDoDTO>();
+                {                  
                     var queryParameter = new DynamicParameters();
                     queryParameter.Add("@UserId", dbType: DbType.Int32, value: userId);
                     queryParameter.Add("@SearchTerm", value: searchString, size: 255);

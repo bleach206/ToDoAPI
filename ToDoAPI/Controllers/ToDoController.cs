@@ -90,11 +90,11 @@ namespace ToDoAPI.Controllers
         }
 
         /// <summary>
-        /// return the specified todo list
+        /// return the specified todo
         /// </summary>
         /// <remarks>Parameters</remarks>   
         /// <param name="id">User Id</param>
-        /// <param name="toDoId">The unique identifier of the list</param>
+        /// <param name="toDoId">The unique identifier of to do</param>
         /// <response code="200">successful operation</response>
         /// <response code="304">Not Modified</response>
         /// <response code="400">Invalid id supplied</response>

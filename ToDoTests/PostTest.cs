@@ -43,9 +43,7 @@ namespace ToDoTests
         [SetUp]
         public void SetUp()
         {
-            _toDoController = new ToDoController(_moqService, _mockLogger, _mockCache);
-            var task = new Mock<CreateTaskDTO>().Object;
-            task.Name = "Guard and kill everyone else";           
+            _toDoController = new ToDoController(_moqService, _mockLogger, _mockCache);                       
 
             _mockCreateDTO = new Mock<CreateDTO>().Object;
 
