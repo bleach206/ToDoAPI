@@ -50,7 +50,7 @@ namespace ToDoAPI.Controllers
         /// <response code="404">List not found</response>
         /// <response code="500">server error</response>
         /// <returns>Response code and dto object</returns>
-        [HttpGet("user/{id}/lists")]
+        [HttpGet("users/{id}/lists")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ToDoDTO>))]
         [ProducesResponseType(304)]
         [ProducesResponseType(400)]
@@ -106,7 +106,7 @@ namespace ToDoAPI.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [HttpGet("user/{id}/list/{toDoId}", Name = "Get")]
+        [HttpGet("users/{id}/lists/{toDoId}", Name = "Get")]
         public async Task<IActionResult> Get(int id, int toDoId)
         {
             try
@@ -151,7 +151,7 @@ namespace ToDoAPI.Controllers
         /// <response code="409">an existing item already exists</response>
         /// <response code="500">server error</response>
         /// <returns>Response code and dto object</returns>
-        [HttpPost("user/{id}")]
+        [HttpPost("users/{id}")]
         [ProducesResponseType(201, Type = typeof(CreateDTO))]
         [ProducesResponseType(400)]
         [ProducesResponseType(409)]
@@ -188,7 +188,7 @@ namespace ToDoAPI.Controllers
         /// <response code="409">an existing item already exists</response>
         /// <response code="500">server error</response>
         /// <returns>Response code and dto object</returns>
-        [HttpPost("user/{id}/lists")]
+        [HttpPost("users/{id}/lists")]
         [ProducesResponseType(201, Type = typeof(IEnumerable<CreateDTO>))]
         [ProducesResponseType(400)]
         [ProducesResponseType(409)]
@@ -336,7 +336,7 @@ namespace ToDoAPI.Controllers
         /// <response code="404">Resource not found</response>
         /// <response code="500">server error</response>
         /// <returns>no content</returns>
-        [HttpDelete("{id}/user/{userId}")]
+        [HttpDelete("{id}/users/{userId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
